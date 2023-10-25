@@ -1,0 +1,62 @@
+﻿<div style="max-width:480px; margin:24px auto; display:flex; flex-direction:column; gap:24px;">
+
+    <div style="height:92px;">
+        <p>現在選択されている値 (_selectedValues フィールド変数の値)</p>
+        @foreach (var value in _selectedValues)
+        {
+            @*
+        [注意]
+        画面上の UI 操作によって _selectedValues に選択項目の ValueKey 値が書き戻される際、
+        ValueKey に指定した値の型が数値系の型の場合は (例えば int など)、_selectedValues
+        に収録される値が double 型に変更されます。 *@
+            <div>@value - @(_data.First(item => item.Id.ToString() == value.ToString()).Name)</div>
+        }
+        @if (!_selectedValues.Any())
+        {
+            <div>(何も選択されていません)</div>
+        }
+    </div>
+
+    <div>
+        <p>モデル (_selectedValues フィールド変数) を変更</p>
+        <button @onclick="@(() => { this._selectedValues = new object[] { 1 }; })">Taro を選択</button>
+        <button @onclick="@(() => { this._selectedValues = new object[] { 2 }; })">Hanako を選択</button>
+        <button @onclick="@(() => { this._selectedValues = new object[] { 1, 2 }; })">Taro と Hanako を選択</button>
+        <button @onclick="@(() => { this._selectedValues = Array.Empty<object>(); })">なにも選択しない</button>
+    </div>
+
+    <div>
+        <p>IgbCombo コンポーネント</p>
+        @*
+        IgbCombo で双方向データバインディングを行うには、@bind-Value に ValueKey で指定した値を収録する
+        object 型の配列プロパティ(またはフィールド変数) を渡します。
+        *@
+        <IgbCombo Data="_data"
+                  DisplayKey="@nameof(Person.Name)"
+                  ValueKey="@nameof(Person.Id)"
+                  @bind-Value="_selectedValues">
+        </IgbCombo>
+    </div>
+
+</div>
+
+@code
+{
+    //// <summary>
+    /// このサンプルで IgbCombo の選択肢とするサンプルデータです。
+    /// </summary>
+    private readonly IEnumerable<Person> _data = new Person[]
+    {
+        new(){ Id = 1, Name = "Taro" },
+        new(){ Id = 2, Name = "Hanako" },
+        new(){ Id = 3, Name = "Jiro" },
+    };
+
+    /// <summary>
+    /// 選択されたアイテムの ValueKey 値 (このサンプルでは Id プロパティ) を保持する配列フィールド変数です。<br/>
+    /// このサンプルでは、この _selectedValues フィールド変数を IgbCombo コンポーネントに双方向データバインディングします。<br/>
+    /// ページ表示時点の初期表示から所定のアイテムを選択済みにしておきたい場合は、それらアイテムの ValueKey 値を、
+    /// OnInitialized などのタイミングで指定しておけばよいです。
+    /// </summary>
+    private object[] _selectedValues = Array.Empty<object>();　//初期値を指定する例: "new object[] { 2 };"
+}
